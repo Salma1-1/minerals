@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>رحلة إلى عالم المعادن</title>
+<style>
+:root{--g:#ffd166;--tx:#f2f0ff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden;background:#05030c;color:var(--tx);font-family:"Segoe UI",Tahoma,"Noto Naskh Arabic",Arial,sans-serif}
+#app{position:relative;height:100%}
+#cv,#cv canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+button{font:inherit;color:var(--tx);background:rgba(30,24,70,.72);border:1px solid rgba(160,140,255,.5);border-radius:10px;padding:8px 14px;cursor:pointer;backdrop-filter:blur(6px)}
+button:hover{background:rgba(70,56,150,.85)}
+#hud{position:absolute;top:8px;left:8px;right:8px;display:flex;gap:8px;justify-content:space-between;align-items:flex-start;z-index:5}
+#steps{display:flex;gap:6px;overflow-x:auto}#steps button{font-size:.8rem;padding:5px 10px;white-space:nowrap}
+#steps button.on{background:#6d4cff;border-color:#b9a8ff}
+#hud>div:last-child{display:flex;gap:6px}
+.ov{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding-top:13%;text-align:center;pointer-events:none}
+#ttl{font-size:clamp(1.9rem,7vw,4rem);font-weight:800;text-shadow:0 0 28px #8a6cff,0 2px 6px #000;opacity:0;transition:opacity 1.3s;padding:0 12px}
+#ttl.show,#sub.show{opacity:1}
+#sub{font-size:clamp(1.1rem,3.4vw,1.8rem);margin-top:10px;color:var(--g);text-shadow:0 2px 8px #000;opacity:0;transition:opacity 1s}
+#card{position:absolute;top:66px;left:50%;transform:translateX(-50%);width:min(92%,460px);background:rgba(12,10,40,.72);border:1px solid rgba(160,140,255,.45);border-radius:14px;padding:10px 14px;text-align:center;opacity:0;transition:opacity .6s;pointer-events:none;backdrop-filter:blur(6px)}
+#card.on{opacity:1}#cn{font-size:1.5rem;font-weight:800}#cf{color:var(--g);direction:rtl;font-weight:700}#ci{font-size:.95rem;margin-top:4px}
+#cta{position:absolute;bottom:9%;left:50%;transform:translateX(-50%) scale(.9);font-size:1.25rem;padding:14px 26px;background:#6d4cff;opacity:0;pointer-events:none;transition:.6s;box-shadow:0 0 28px #8a6cff}
+#cta.on{opacity:1;pointer-events:auto;transform:translateX(-50%) scale(1);animation:pl 1.4s infinite}
+@keyframes pl{50%{box-shadow:0 0 50px #b9a8ff}}
+#quiz{position:absolute;bottom:3%;left:50%;transform:translateX(-50%);width:min(94%,560px);text-align:center;opacity:0;pointer-events:none;transition:.5s;background:rgba(12,10,40,.78);border:1px solid rgba(160,140,255,.45);border-radius:14px;padding:12px}
+#quiz.on{opacity:1;pointer-events:auto}#qq{font-size:1.15rem;font-weight:700;margin-bottom:8px}
+#qa{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}#qa button{font-size:1.1rem;min-width:120px}
+#qa button.ok{background:#16803c;border-color:#7dffb2;box-shadow:0 0 22px #4ade80}#qa button.bad{background:#8a1f35;border-color:#ff7a90}
+#qf{margin-top:8px;min-height:1.4em;font-weight:700}#qn{display:none;margin:8px auto 0}#qn.on{display:block}
+#chips{position:absolute;bottom:6%;left:0;right:0;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;padding:0 10px;opacity:0;pointer-events:none;transition:.8s}
+#chips.on{opacity:1;pointer-events:auto}#chips button.fav{background:#6d4cff;border-color:var(--g)}
+#start{position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:rgba(5,3,12,.72);text-align:center;padding:20px}
+#start h1{font-size:clamp(2rem,7vw,3.6rem);margin:0;text-shadow:0 0 28px #8a6cff}#st{font-size:1.4rem;padding:14px 34px;background:#6d4cff}
+#start p{color:#b9b3d8;margin:0}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="cv"></div>
+<div id="hud"><div id="steps"></div><div><button id="mu">الموسيقى: تعمل</button><button id="rp">إعادة</button></div></div>
+<div class="ov"><div id="ttl"></div><div id="sub"></div></div>
+<div id="card"><div id="cn"></div><div id="cf"></div><div id="ci"></div></div>
+<button id="cta">اضغط لاكتشاف المعدن</button>
+<div id="quiz"><div id="qq">ما المجموعة التي ينتمي إليها معدن البيريت (FeS₂)؟</div><div id="qa"></div><div id="qf"></div><button id="qn">التالي ←</button></div>
+<div id="chips"></div>
+<div id="start"><h1>رحلة إلى عالم المعادن</h1><p>تجربة سينمائية تفاعلية ثلاثية الأبعاد (حوالي دقيقة)</p><button id="st">ابدأ الرحلة</button><p>يُفضَّل تشغيل الصوت للاستمتاع بالموسيقى</p></div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>
+(function(){
+const $=id=>document.getElementById(id),rnd=Math.random,TAU=Math.PI*2,V3=THREE.Vector3;
+const M=[
+{n:"الكوارتز",f:"SiO₂",g:"السيليكات",i:"من أكثر المعادن وفرة في القشرة الأرضية، وصلادته 7 على مقياس موس.",c:0xb9a8ff},
+{n:"الكالسيت",f:"CaCO₃",g:"الكربونات",i:"يتفوّر عند وضع حمض مخفف عليه، ويتشقق على شكل معيّنات.",c:0xffd9a0},
+{n:"الهيماتيت",f:"Fe₂O₃",g:"الأكاسيد",i:"من أهم خامات الحديد، ويعطي مسحوقًا أحمر مميزًا.",c:0xff6a5a},
+{n:"البيريت",f:"FeS₂",g:"الكبريتيدات",i:"يُلقّب بـ«ذهب الحمقى» لبريقه الذهبي، ويعطي مسحوقًا أسود مخضرًّا.",c:0xffd24a},
+{n:"الهاليت",f:"NaCl",g:"الهاليدات",i:"ملح الطعام الطبيعي، يتبلور على شكل مكعبات ويذوب في الماء.",c:0x8fd0ff},
+{n:"الجبس",f:"CaSO₄·2H₂O",g:"الكبريتات",i:"معدن لين جدًا (صلادته 2) يمكن خدشه بالظفر.",c:0xf3e6c8}];
+const NM=["المقدمة","اكتشف المعادن","المجموعات","اختبر نفسك","الخاتمة"];
+const ease=u=>u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,cl=(x,a,b)=>Math.min(b,Math.max(a,x));
+
+// ---------- three ----------
+const R=new THREE.WebGLRenderer({antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.outputEncoding=THREE.sRGBEncoding;$("cv").appendChild(R.domElement);
+const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(55,1,.1,80),look=new V3();
+sc.fog=new THREE.FogExp2(0x0a0618,.035);sc.background=new THREE.Color(0x05030c);
+const env=(()=>{const f=[];for(let i=0;i<6;i++){const c=document.createElement("canvas");c.width=c.height=64;const g=c.getContext("2d"),gr=g.createLinearGradient(0,0,0,64);gr.addColorStop(0,i==2?"#fff":"#9fb4ff");gr.addColorStop(1,"#1a1030");g.fillStyle=gr;g.fillRect(0,0,64,64);g.fillStyle="#fff";g.beginPath();g.arc(20,18,9,0,TAU);g.arc(46,40,5,0,TAU);g.fill();f.push(c);}const t=new THREE.CubeTexture(f);t.needsUpdate=true;return t;})();
+const mat=(c,o)=>new THREE.MeshPhysicalMaterial(Object.assign({color:c,envMap:env,envMapIntensity:1.2,roughness:.15,metalness:.1},o||{}));
+sc.add(new THREE.AmbientLight(0x8a7cc8,.55));
+function prism(h,r,m){const g=new THREE.Group(),b=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,6),m),t=new THREE.Mesh(new THREE.ConeGeometry(r,r*1.3,6),m);b.position.y=h/2;t.position.y=h+r*.65;g.add(b,t);return g;}
+function cluster(c,s,n,e){const g=new THREE.Group(),m=mat(c,{transparent:true,opacity:.84,emissive:c,emissiveIntensity:e});for(let i=0;i<n;i++){const p=prism((.6+rnd()*1.2)*s,(.1+rnd()*.12)*s,m);p.rotation.set((rnd()-.5)*.9,rnd()*TAU,(rnd()-.5)*.9);g.add(p);}return g;}
+function dust(n,sx,sy,sz,col,sz2){const p=new Float32Array(n*3);for(let i=0;i<n;i++){p[i*3]=(rnd()-.5)*sx;p[i*3+1]=(rnd()-.5)*sy;p[i*3+2]=(rnd()-.5)*sz;}const g=new THREE.BufferGeometry();g.setAttribute("position",new THREE.BufferAttribute(p,3));return new THREE.Points(g,new THREE.PointsMaterial({size:sz2,color:col,transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false}));}
+
+// cave
+const cave=new THREE.Group();sc.add(cave);
+const rg=new THREE.IcosahedronGeometry(1,4),pa=rg.attributes.position;
+for(let i=0;i<pa.count;i++){const x=pa.getX(i),y=pa.getY(i),z=pa.getZ(i),d=1+.14*Math.sin(x*6+1)*Math.sin(y*5)*Math.sin(z*7)+.06*Math.sin(x*15)*Math.sin(z*13);pa.setXYZ(i,x*d*13,y*d*7,z*d*26);}
+rg.computeVertexNormals();
+cave.add(new THREE.Mesh(rg,new THREE.MeshStandardMaterial({color:0x2a2146,roughness:.95,side:THREE.BackSide,flatShading:true})));
+const PAL=[0x8a6cff,0x4fe3ff,0xff6ad5,0x7dffb2];
+for(let i=0;i<40;i++){const th=rnd()*TAU,ph=Math.acos(2*rnd()-1),p=new V3(Math.sin(ph)*Math.cos(th)*13,Math.cos(ph)*7,Math.sin(ph)*Math.sin(th)*26).multiplyScalar(.95);
+const g=cluster(PAL[i%4],.9+rnd()*1.2,4+Math.floor(rnd()*3),.7);g.position.copy(p);g.quaternion.setFromUnitVectors(new V3(0,1,0),new V3(-p.x/169,-p.y/49,-p.z/676).normalize());cave.add(g);}
+const cdust=dust(420,22,12,40,0xcdbfff,.06);cave.add(cdust);
+const cvl=new THREE.PointLight(0x9a7cff,2,34);cave.add(cvl);
+const heroes=new THREE.Group();sc.add(heroes);
+[[-2.3,0xb78bff],[0,0x66e6ff],[2.3,0xff7ad9]].forEach((a,i)=>{const g=cluster(a[1],1.9,5,.8);g.position.set(a[0],-1.3,i==1?-3:-1.5);heroes.add(g);const l=new THREE.PointLight(a[1],2.2,9);l.position.set(a[0],.8,i==1?-2:-.5);heroes.add(l);});
+
+// lab (pedestal + grid)
+const lab=new THREE.Group();sc.add(lab);
+const ped=new THREE.Group();lab.add(ped);
+ped.add(new THREE.Mesh(new THREE.CylinderGeometry(2.3,2.5,.5,48),mat(0x1d2748,{metalness:.7,roughness:.35})));
+const rim=new THREE.Mesh(new THREE.TorusGeometry(2.3,.05,8,64),new THREE.MeshBasicMaterial({color:0x66e6ff}));rim.rotation.x=Math.PI/2;rim.position.y=.25;ped.add(rim);
+const grid=new THREE.GridHelper(60,60,0x2a4a8a,0x13254a);grid.position.y=-.3;lab.add(grid);
+const ldust=dust(200,16,8,16,0x66b8ff,.07);ldust.position.y=2;lab.add(ldust);
+const spot=new THREE.SpotLight(0xffffff,2.4,30,.7,.5);spot.position.set(2,8,4);lab.add(spot);
+const acc=new THREE.PointLight(0xffffff,1.6,14);acc.position.set(-3,3,3);lab.add(acc);
+const flash=new THREE.PointLight(0xffffff,0,14);flash.position.set(0,2.2,1.5);sc.add(flash);
+
+// specimens
+const ringG=new THREE.Group();sc.add(ringG);
+function rh(c,s,x,y,z,ry){const g=new THREE.BoxGeometry(1,1,1);g.applyMatrix4(new THREE.Matrix4().set(1,.45,0,0,0,1,0,0,0,.45,1,0,0,0,0,1));const m=new THREE.Mesh(g,mat(c,{transparent:true,opacity:.86,roughness:.1,emissive:0x553300,emissiveIntensity:.15}));m.scale.setScalar(s);m.position.set(x,y,z);m.rotation.y=ry;return m;}
+function cube(m,s,x,y,z,rx,ry){const b=new THREE.Mesh(new THREE.BoxGeometry(s,s,s),m);b.position.set(x,y,z);b.rotation.set(rx,ry,0);return b;}
+const B=[
+()=>{const g=cluster(0xcfc4ff,1.15,7,.18);return g;},
+()=>{const g=new THREE.Group();g.add(rh(0xffd9a0,1.1,0,.6,0,.3),rh(0xffe8c4,.8,.8,.45,.3,1),rh(0xffcf8a,.7,-.7,.4,.4,-.5));return g;},
+()=>{const g=new THREE.Group();[[0,0,0,.75],[.7,-.1,.2,.5],[-.6,-.1,.3,.5],[.1,0,-.65,.55],[.2,.5,.1,.4]].forEach(a=>{const s=new THREE.SphereGeometry(a[3],18,14),p=s.attributes.position;for(let i=0;i<p.count;i++){const k=1+.12*Math.sin(p.getX(i)*9)*Math.sin(p.getY(i)*8+p.getZ(i)*5);p.setXYZ(i,p.getX(i)*k,p.getY(i)*k,p.getZ(i)*k);}s.computeVertexNormals();const m=new THREE.Mesh(s,mat(0x5a3034,{metalness:.9,roughness:.3,emissive:0x3a0808,emissiveIntensity:.25}));m.position.set(a[0],a[1]+.6,a[2]);g.add(m);});return g;},
+()=>{const g=new THREE.Group(),m=mat(0xe0b93a,{metalness:1,roughness:.2,envMapIntensity:1.9});g.add(cube(m,.95,0,.5,0,.2,.3),cube(m,.7,.7,.4,.3,.4,.9),cube(m,.55,-.55,.3,.5,.1,.6));return g;},
+()=>{const g=new THREE.Group(),m=mat(0xe6f1ff,{transparent:true,opacity:.78,roughness:.08,emissive:0x4a6aa8,emissiveIntensity:.12});g.add(cube(m,1.1,0,.55,0,0,.4),cube(m,.6,.75,.3,.2,0,.9),cube(m,.5,-.6,.25,.4,0,.1));return g;},
+()=>{const g=new THREE.Group(),m=mat(0xf4ead8,{roughness:.5,envMapIntensity:.6});for(let i=0;i<10;i++){const b=new THREE.Mesh(new THREE.BoxGeometry(1.2,.95,.07),m);b.position.set(Math.cos(i*.9)*.3,.55,Math.sin(i*.9)*.3);b.rotation.set((rnd()-.5)*.5,i*.7,(rnd()-.5)*.6);g.add(b);}return g;}];
+const sp=B.map(f=>{const g=f();g.visible=false;ringG.add(g);return g;});
+
+// sparks
+const SN=160,sp3=new Float32Array(SN*3),sv=new Float32Array(SN*3),sg=new THREE.BufferGeometry();sg.setAttribute("position",new THREE.BufferAttribute(sp3,3));
+const spk=new THREE.Points(sg,new THREE.PointsMaterial({size:.14,color:0xffe08a,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));spk.visible=false;spk.frustumCulled=false;sc.add(spk);let sl=0;
+function burst(col,y){for(let i=0;i<SN;i++){sp3[i*3]=0;sp3[i*3+1]=y;sp3[i*3+2]=0;const a=rnd()*TAU,b=Math.acos(2*rnd()-1),v=1.5+rnd()*3;sv[i*3]=Math.sin(b)*Math.cos(a)*v;sv[i*3+1]=Math.cos(b)*v;sv[i*3+2]=Math.sin(b)*Math.sin(a)*v;}spk.material.color.setHex(col);sl=1.8;spk.visible=true;flash.color.setHex(col);flash.intensity=9;}
+
+// ---------- audio ----------
+let AC,mg,pads=[],mute=false,nb=2;const SCL=[220,261.63,293.66,329.63,392,440,523.25,659.25];
+const CH=[[110,164.8,220,261.6],[110,164.8,220,277.2],[98,146.8,196,246.9],[110,155.6,220,261.6],[130.8,196,261.6,329.6]];
+function audioStart(){try{AC=new(window.AudioContext||window.webkitAudioContext)();mg=AC.createGain();mg.gain.value=.55;mg.connect(AC.destination);const lp=AC.createBiquadFilter();lp.type="lowpass";lp.frequency.value=700;lp.connect(mg);
+for(let i=0;i<4;i++){const o=AC.createOscillator(),g=AC.createGain();o.type=i%2?"triangle":"sine";o.frequency.value=110;g.gain.value=.08;o.connect(g);g.connect(lp);o.start();pads.push(o);}
+const lf=AC.createOscillator(),lg=AC.createGain();lf.frequency.value=.15;lg.gain.value=300;lf.connect(lg);lg.connect(lp.frequency);lf.start();}catch(e){AC=null;}}
+function chord(a){if(AC)pads.forEach((o,i)=>o.frequency.setTargetAtTime(a[i],AC.currentTime,1.2));}
+function note(f,v,d,dl){if(!AC)return;const t=AC.currentTime+(dl||0),o=AC.createOscillator(),o2=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o2.frequency.value=f*2.01;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(v,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);o2.connect(g);g.connect(mg);o.start(t);o2.start(t);o.stop(t+d);o2.stop(t+d);}
+
+// ---------- timeline ----------
+const S={i:-1,t:0,run:false,k:-1,fav:-1,ans:false,at:0,a:0};
+function Z(){return cam.aspect<1?1.6:1;}
+function showTitle(x){const e=$("ttl");e.textContent=x;e.className="show";}
+function showSub(x){const e=$("sub");e.textContent=x;e.className="show";}
+function showCard(i){$("cn").textContent=M[i].n;$("cf").textContent=M[i].f+" · "+M[i].g;$("ci").textContent=M[i].i;$("card").className="on";}
+function place(){ringG.position.set(0,0,0);ringG.rotation.set(0,0,0);sp.forEach((s,j)=>{s.position.set(0,.25,0);s.rotation.set(0,0,0);s.scale.setScalar(1);s.visible=false;});}
+function go(i){S.i=i;S.t=0;S.k=-1;S.ans=false;S.a=0;
+["ttl","sub","cta","card","quiz","chips","qn"].forEach(id=>$(id).className="");
+cave.visible=i===0;lab.visible=i>0;heroes.visible=false;ped.visible=i>0&&i<4;place();
+sc.background.setHex(i?0x07122a:0x05030c);sc.fog.color.setHex(i?0x07122a:0x0a0618);sc.fog.density=i?.012:.035;
+[...$("steps").children].forEach((b,j)=>b.className=j===i?"on":"");
+chord(CH[i]);note(SCL[i+2],.06,3);
+if(i===3){sp[3].visible=true;$("quiz").className="on";$("qf").textContent="";const q=$("qa");q.innerHTML="";["الكربونات","الكبريتيدات","السيليكات"].forEach((o,j)=>{const b=document.createElement("button");b.textContent=o;b.onclick=()=>answer(j);q.appendChild(b);});acc.color.setHex(0xffd24a);}
+if(i===4){sp.forEach((s,j)=>{s.visible=true;const a=j/6*TAU;s.position.set(Math.sin(a)*2.7,0,Math.cos(a)*2.7);});ringG.position.y=1;acc.color.setHex(0xffffff);}}
+function answer(j){if(S.ans)return;S.ans=true;S.at=S.t;const ok=j===1,bs=[...$("qa").children];bs.forEach((b,x)=>{b.disabled=true;if(x===1)b.className="ok";});if(!ok)bs[j].className="bad";
+$("qf").textContent=ok?"إجابة صحيحة! البيريت (FeS₂) من الكبريتيدات: مركّب من الحديد والكبريت.":"إجابة غير صحيحة. البيريت (FeS₂) من الكبريتيدات، فهو مركّب من الحديد والكبريت.";
+$("qn").className="on";
+if(ok){burst(0xffe08a,1.1);[523.25,659.25,783.99,1046.5].forEach((f,x)=>note(f,.1,1.6,x*.12));}else{burst(0xff3355,1.1);note(196,.12,1.2);note(185,.12,1.4,.15);}}
+$("qn").onclick=()=>go(4);
+$("cta").onclick=()=>go(2);
+
+function tick(dt){
+if(S.run){S.t+=dt;nb-=dt;if(nb<0&&AC){note(SCL[Math.floor(rnd()*SCL.length)],.05,2.6);nb=.9+rnd()*1.2;}}
+const t=S.t,z=Z();
+cdust.rotation.y+=dt*.02;ldust.rotation.y+=dt*.05;ldust.position.y=2+Math.sin(performance.now()/2500)*.3;
+if(S.i===0){
+cam.position.set(Math.sin(t*.5)*.9,.6+Math.sin(t*.7)*.25,13-t*1.1);look.set(Math.sin(t*.3)*1.2,.2,-6);
+cvl.position.copy(cam.position);cvl.intensity=2.2+Math.sin(t*9)*.5+Math.sin(t*23)*.2;
+if(t>2.6&&!S.a){S.a=1;showTitle("رحلة إلى عالم المعادن");}
+if(t>5.6&&S.a<2){S.a=2;showSub("اكتشف أسرار البلورات في أعماق الأرض");}
+const h=ease(cl_(t-4.6,1.6));heroes.visible=h>0;heroes.scale.setScalar(.01+h);heroes.children.forEach((c,i)=>{c.rotation.y+=dt*(.5+i*.2);});
+if(S.run&&t>8)go(1);}
+else if(S.i===1){
+const T=[0,1,3],k=Math.min(2,Math.floor(t/2)),u=cl(t-k*2,0,2)/2;
+if(k!==S.k){S.k=k;sp.forEach((s,j)=>s.visible=j===T[k]);showCard(T[k]);acc.color.setHex(M[T[k]].c);}
+const s=sp[T[k]];s.rotation.y=t<6?ease(u)*TAU:TAU+(t-6)*.6;s.scale.setScalar(1.4*ease(cl(u*3,0,1))+.001);
+const ang=Math.min(t,6)*.13;cam.position.set(Math.sin(ang)*5.2*z,2.5,Math.cos(ang)*5.2*z);look.set(0,1,0);
+if(t>=6&&S.a<1){S.a=1;$("cta").className="on";}
+if(S.run&&t>13)go(2);}
+else if(S.i===2){
+const k=Math.min(5,Math.floor(t/3)),u=(t-k*3)/3;
+if(k!==S.k){S.k=k;sp.forEach((s,j)=>s.visible=j===k);showCard(k);acc.color.setHex(M[k].c);note(SCL[k+1]*2,.06,2.5);}
+const s=sp[k];s.scale.setScalar(1.4*ease(cl(u*4,0,1))+.001);s.rotation.y=t*.9;
+const ang=t*.1;cam.position.set(Math.sin(ang)*5.4*z,2.4,Math.cos(ang)*5.4*z);look.set(0,1,0);
+if(S.run&&t>18)go(3);}
+else if(S.i===3){
+const s=sp[3];s.scale.setScalar(1.7*ease(cl(t,0,1))+.001);s.rotation.y+=dt*.6;
+cam.position.set(2.6*z,2.3,5.2*z);look.set(0,1.2,0);
+if(S.ans&&S.run&&t-S.at>7)go(4);}
+else if(S.i===4){
+ringG.rotation.y=t*.35;sp.forEach((s,j)=>{s.rotation.y+=dt*1.1;s.scale.setScalar((j===S.fav?1.5+Math.sin(t*5)*.08:1.05)*ease(cl(t/1.5,0,1))+.001);});
+cam.position.set(0,2.8+Math.min(t,10)*.04,(8+Math.min(t,10)*.15)*z);look.set(0,1,0);
+if(t>.5&&S.a<1){S.a=1;showTitle("كل معدن له سر يميّزه");}
+if(t>4.6&&S.a<2){S.a=2;showSub("أي مجموعة أعجبتك أكثر؟");$("chips").className="on";note(659.25,.08,3);}}
+if(sl>0){sl-=dt;for(let i=0;i<SN;i++){sp3[i*3]+=sv[i*3]*dt;sp3[i*3+1]+=sv[i*3+1]*dt;sp3[i*3+2]+=sv[i*3+2]*dt;sv[i*3+1]-=dt*1.2;}sg.attributes.position.needsUpdate=true;spk.material.opacity=cl(sl/1.8,0,1);if(sl<=0)spk.visible=false;}
+flash.intensity*=.93;
+cam.lookAt(look);}
+function cl_(x,d){return cl(x/d,0,1);}
+
+// ---------- ui ----------
+NM.forEach((n,i)=>{const b=document.createElement("button");b.textContent=n;b.onclick=()=>{if(S.run)go(i);};$("steps").appendChild(b);});
+M.forEach((m,i)=>{const b=document.createElement("button");b.textContent=m.g;b.onclick=()=>{S.fav=i;[...$("chips").children].forEach((c,j)=>c.className=j===i?"fav":"");showSub("اخترت: "+m.g+" — "+m.n+" ("+m.f+")");burst(m.c,1);note(SCL[i+1]*2,.1,2);};$("chips").appendChild(b);});
+$("st").onclick=()=>{audioStart();$("start").style.display="none";S.run=true;go(0);};
+$("rp").onclick=()=>{if(!S.run){$("st").click();return;}S.fav=-1;[...$("chips").children].forEach(c=>c.className="");go(0);};
+$("mu").onclick=()=>{mute=!mute;if(mg)mg.gain.value=mute?0:.55;$("mu").textContent="الموسيقى: "+(mute?"متوقفة":"تعمل");};
+function resize(){const w=innerWidth,h=innerHeight;R.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix();}
+addEventListener("resize",resize);resize();
+go(0);const clk=new THREE.Clock();
+(function loop(){requestAnimationFrame(loop);tick(Math.min(clk.getDelta(),.05));R.render(sc,cam);})();
+})();
+</script>
+</body>
+</html>
